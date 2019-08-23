@@ -1,14 +1,33 @@
 ;; -*- coding: utf-8; lexical-binding: t; -*-
 (setq emacs-load-start-time (current-time)) ;; load start time
-(tool-bar-mode -1) ;; disable toolbar
-(setq-default inhibit-startup-screen t)
+
+;; speed up emacs startup by enlarge memory threshold
+;; https://github.com/hlissner/doom-emacs/wiki/FAQ#how-is-dooms-startup-so-fast
+(setq gc-cons-threshold (* 64 1024 1024)
+      gc-cons-percentage 0.5)
+
+(setq-default inhibit-startup-screen t) ;; disable startup display emacs manual
+
+(if (display-graphic-p)
+    (progn
+      (tool-bar-mode -1) ;; disable toolbar
+      (menu-bar-mode -1) ;; disable menubar
+      )
+  (xterm-mouse-mode)
+  )
+
+;; display line number, need emacs version >= 26.0.50
+(when (version<= "26.0.50" emacs-version)
+  (global-display-line-numbers-mode))
 
 (setq auto-save-default nil) ;; disable autosave
 (setq backup-directory-alist '(("" . "~/.emacs.d/backup"))) ;;save backup file together
 
+(setq dired-listing-switches "-alh") ;; make dired display size human readable
+
 (require 'package)
 (setq package-enable-at-startup nil)
-;; use tsinghua elpa mirror
+;; use emacs china elpa mirror
 (setq package-archives '(("gnu" . "https://elpa.emacs-china.org/gnu/")
 			 ("melpa-stable" . "http://elpa.emacs-china.org/melpa-stable/")
 			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
@@ -25,28 +44,6 @@
 (setq use-package-always-ensure t)
 (use-package bind-key)
 (use-package diminish)
-
-;; speed up emacs startup by enlarge memory threshold
-;; https://github.com/hlissner/doom-emacs/wiki/FAQ#how-is-dooms-startup-so-fast
-(setq gc-cons-threshold (* 64 1024 1024)
-      gc-cons-percentage 0.5)
-
-;;(use-package smex)
-;;(use-package counsel
-;;  :init
-;;  (setq enable-recursive-minibuffers t)
-;;  (setq ivy-use-virtual-buffers t)
-;;  :diminish ivy-mode counsel-mode
-;;  :bind (("C-c C-r" . 'ivy-resume)
-;;	 ("C-s" . 'swiper-isearch)
-;;	 ("C-r" . 'swiper-isearch-backward)
-;;	 ("M-x" . 'counsel-M-x)
-;;	 ("C-x f" . 'counsel-find-file)
-;;	 ("C-x b" . 'counsel-switch-buffer)
-;;	 ("C-x d" . 'counsel-dired))
-;;  :hook ((after-init . ivy-mode)
-;;	 (ivy-mode . counsel-mode))
-;;  )
 
 (use-package helm
   :pin melpa-stable
@@ -83,7 +80,7 @@
   :hook ((evil-mode . global-evil-leader-mode))
   )
 
-(use-package clang-format)
+(use-package clang-format) ;; need install clang-tools
 
 (use-package yasnippet
   :diminish yas-minor-mode
@@ -123,11 +120,11 @@
   (push 'company-lsp company-backends)
   )
 
-
 (use-package magit
   :defer)
 
 (use-package dracula-theme)
+;;(use-package arc-dark-theme)
 
 (use-package powerline
   :hook
@@ -139,6 +136,8 @@
   (shell-command
    (format "ctags -f %s/TAGS -e -R %s" (directory-file-name dir-name)))
   )
+
+(fset 'delete-empty-lines (kbd "M-x flush-lines RET ^\s-*$ RET"))
 
 ;; @see https://www.reddit.com/r/emacs/comments/4q4ixw/how_to_forbid_emacs_to_touch_configuration_files/
 ;; See `custom-file' for details.
