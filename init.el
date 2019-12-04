@@ -137,6 +137,9 @@
    (format "ctags -f %s/TAGS -e -R %s" (directory-file-name dir-name)))
   )
 
+(setq c-default-style "linux"
+      c-basic-offset 4)
+
 (fset 'delete-empty-lines (kbd "M-x flush-lines RET ^\s-*$ RET"))
 
 ;; @see https://www.reddit.com/r/emacs/comments/4q4ixw/how_to_forbid_emacs_to_touch_configuration_files/
